@@ -170,8 +170,18 @@ class Loader:
                 remaining_count = self.ext_con['Client'].count(
                     index = self.ext_con['Index'],
                     body = pipeline)
-                # ES Stop Point
-                return int(remaining_count['count'])
+                # ES total
+                es_total = int(remaining_count['count'])
+
+                # mongo total
+                pipeline = [
+                    {"$count": "total_count"},
+                ]
+
+                mongo_total = 0 \
+                    if self.com_con['Collection'].aggregate(pipeline)._has_next() == False \
+                    else self.com_con['Collection'].aggregate(pipeline).next()['total_count']
+                return max(0, es_total - mongo_total)
             else:
                 pipeline = [{
                         "$match": {
