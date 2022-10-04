@@ -1,21 +1,21 @@
 {
-	"COMMIT": {
-		"HOST": "localhost",
-		"INDEX": "shakespeare4",
-		"USER": "elastic",
-		"PASSWORD": "passopasso",
-		"DBENGINE": "elasticsearch",
-		"PORT":9200,
-		"PROTOCOL": "http"
-	},
 	"EXTRACT": {
 		"HOST": "localhost",
-		"DATABASE": "shakespeare",
-		"COLLECTION": "shakespeare",
-		"USER": "mongobongo",
-		"PASSWORD": "passopasso",
+		"INDEX": "fuelup-display-v12",
+		"USER": "",
+		"PASSWORD": "",
+		"DBENGINE": "elasticsearch",
+		"PORT":9206,
+		"PROTOCOL": "http"
+	},
+	"COMMIT": {
+		"HOST": "localhost",
+		"DATABASE": "fuelup",
+		"COLLECTION": "company",
+		"USER": "",
+		"PASSWORD": "",
 		"DBENGINE": "mongo",
-		"PORT":27017,
+		"PORT": 27017,
 		"SSL": false
 	},
 	"SETTINGS": {
