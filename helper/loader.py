@@ -55,7 +55,7 @@ class Loader:
             for each_hit in hits_:
                 dest_trace.append(each_hit['_source'])
                 self.resume_point+=1
-                dest_trace[-1]['mongoes_id'] = self.resume_point
+                # dest_trace[-1]['mongoes_id'] = self.resume_point
                 sour_trace.append({
                     "_op_type": "update", 
                     "_index": each_hit["_index"],
@@ -68,7 +68,7 @@ class Loader:
             for each_hit in hits_:
                 each_hit = json.loads(json_util.dumps(each_hit))
                 self.resume_point+=1
-                each_hit['mongoes_id'] = self.resume_point
+                # each_hit['mongoes_id'] = self.resume_point
                 sour_trace.append({"_id": each_hit["_id"]['$oid'], "mongoes_id": self.resume_point})
                 dest_trace.append({
                     '_index': self.com_con['Index'],
