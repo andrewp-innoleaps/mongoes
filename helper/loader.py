@@ -135,13 +135,14 @@ class Loader:
                             }
                         }
                     }
-                res_point = self.ext_con['Client'].search(
-                                    index = self.ext_con['Index'], 
-                                    size = 0, 
-                                    body = pipeline)
-                return 0 \
-                    if res_point['aggregations']['max_mongoes_id']['value'] == None \
-                    else int(res_point['aggregations']['max_mongoes_id']['value'])
+                return self.com_con['Collection'].count_documents({})
+                # res_point = self.ext_con['Client'].search(
+                #                     index = self.ext_con['Index'], 
+                #                     size = 0, 
+                #                     body = pipeline)
+                # return 0 \
+                #     if res_point['aggregations']['max_mongoes_id']['value'] == None \
+                #     else int(res_point['aggregations']['max_mongoes_id']['value'])
             else:
                 # Mongo's Resume Point
                 return list(
