@@ -83,7 +83,7 @@ class Loader:
         try:
             ext_trace, com_trace = self.tag_documents(list_)
             if 'Index' in self.ext_con:
-                elasticsearch.helpers.bulk(self.ext_con['Client'], ext_trace)
+                # elasticsearch.helpers.bulk(self.ext_con['Client'], ext_trace)
                 if com_trace != []:
                     self.com_con['Collection'].insert_many(com_trace, ordered=False)
                 # TBD: Handle successful write
