@@ -39,6 +39,7 @@ class Loader:
 
     def transfer_data(self):
         body = {}
+        self.ext_con['Client'].clear_scroll(scroll_id='_all')
         data = self.ext_con['Client'].search(
             index=self.ext_con['Index'],
             scroll=self.settings['SCROLL'],
