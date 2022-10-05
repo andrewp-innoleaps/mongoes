@@ -44,7 +44,8 @@ class Loader:
             index=self.ext_con['Index'],
             scroll=self.settings['SCROLL'],
             size=self.settings['FREQUENCY'],
-            body=body
+            body=body,
+            request_timeout=300
         )
 
         # Get the scroll ID
@@ -62,7 +63,11 @@ class Loader:
                 self.save_data(data['hits']['hits'])
 
                 # scroll
-                data = self.ext_con['Client'].scroll(scroll_id=sid, scroll=self.settings['SCROLL'])
+                data = self.ext_con['Client'].scroll(
+                    scroll_id=sid,
+                    scroll=self.settings['SCROLL'],
+                    request_timeout=300
+                )
 
                 # Update the scroll ID
                 sid = data['_scroll_id']
