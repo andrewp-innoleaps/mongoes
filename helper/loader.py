@@ -1,5 +1,6 @@
 import json
 from pymongo import DESCENDING, UpdateOne
+from pymongo.errors import DocumentTooLarge, OperationFailure
 from bson import json_util
 from bson.objectid import ObjectId
 import elasticsearch.helpers
@@ -10,8 +11,72 @@ class Loader:
         self.com_con = com_con
         self.settings = settings
         self.resume_point = None
+        self.errors = 0
+    
+    def log(self, error_type:str, hit) -> None:
+        with open(f'errs-{self.errors}.txt', 'a+') as f:
+            msg = f'{error_type}:\n hit: {hit}\n'
+            f.write(msg)
+            self.errors += 1
+
+    def save_data(self, hits, bulk=False):
+        if bulk:
+            to_save = {}
+            for hit in hits:
+                if hit['_type'] not in to_save:
+                    to_save[hit['_type']] = []
+                to_save[hit['_type']].append(hit['_source'])
+            for _type, _sources in to_save.items():
+                self.com_con['Cursor'][_type].insert_many(_sources, ordered=False)
+        else:
+            for hit in hits:
+                try:
+                    self.com_con['Cursor'][hit['_type']].insert_one(hit['_source'])
+                except OperationFailure:
+                    self.log('OperationFailure', hit['_source'])
+                except DocumentTooLarge:
+                    self.log('DocumentTooLarge', hit['_source'])
+
+    def transfer_data(self):
+        body = {}
+        data = self.ext_con['Client'].search(
+            index=self.ext_con['Index'],
+            scroll=self.settings['SCROLL'],
+            size=self.settings['FREQUENCY'],
+            body=body
+        )
+
+        # Get the scroll ID
+        sid = data['_scroll_id']
+        scroll_size = len(data['hits']['hits'])
+
+        try:
+            iteration = 1
+            while scroll_size > 0:
+                # Before scroll, process current batch of hits
+                print(f"   #{iteration}")
+                print(f"   scroll_size:\t\t\t{scroll_size}")
+                print(f"   n objects to write:\t\t{len(data['hits']['hits'])}")
+                print("=========================================")
+                self.save_data(data['hits']['hits'])
+
+                # scroll
+                data = self.ext_con['Client'].scroll(scroll_id=sid, scroll=self.settings['SCROLL'])
+
+                # Update the scroll ID
+                sid = data['_scroll_id']
+
+                # Get the number of results that returned in the last scroll
+                scroll_size = len(data['hits']['hits'])
+                iteration += 1
+        except Exception as e:
+            print("Exception")
+            raise e
+        finally:
+            self.ext_con['Client'].clear_scroll(scroll_id=sid)
 
     def read_data(self):
+        hits = []
         try:
             self.resume_point = self.find_resume_point()
             if 'Index' in self.ext_con:
